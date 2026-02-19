@@ -27,6 +27,23 @@ The skill runs 2–3 rounds of parallel agent dispatch:
 
 - **Output.** The Synthesizer drafts the final document: a structured recon with competing framings, fully developed tensions, unexpected connections, and genuinely open questions — all in Obsidian-native markdown with wikilinks, callouts, and footnotes.
 
+## Architecture
+
+deep-recon uses **subagents** (Claude Code's Task tool), not agent teams. Each agent is
+dispatched as an independent task that reports back to the orchestrator. Agents don't
+communicate with each other directly — the orchestrator cross-pollinates findings between
+rounds.
+
+This is deliberate. The orchestrator's role between rounds — digesting the Synthesizer's
+analysis, compiling settled claims, crafting tailored prompts for each agent — is an
+interpretive step that shapes the next round's quality. Agent teams (experimental in Claude
+Code 4.6) offer direct inter-agent messaging, but at the cost of deterministic control
+over round structure and dispatch.
+
+When agent teams exit experimental status, a hybrid approach — orchestrator-controlled
+rounds with inter-agent dialogue within each round — could improve the Critic↔Explorer
+and Synthesizer→all-agents communication flows.
+
 ## Modes
 
 | Flag | Mode | Description |

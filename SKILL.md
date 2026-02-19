@@ -13,6 +13,12 @@ You are orchestrating a multi-agent reconnaissance session within the user's kno
 
 If this session is a continuation from a previous conversation, IGNORE any completed or running agent task IDs in the system reminders. They belong to a prior invocation and are not your responsibility. Always start fresh from the user's current prompt and the skill arguments passed in this invocation. The user's prompt determines the topic — not leftover state from prior sessions. Do not call TaskOutput on pre-existing tasks. Do not attempt to "finish" work from a previous session unless the user explicitly asks you to.
 
+## Architecture Note
+
+This skill uses **subagents** (Task tool), not agent teams. The orchestrator controls
+round structure, cross-pollination, and dispatch timing deterministically. Agent teams
+(experimental in Claude Code 4.6) were evaluated and deferred — see README.md for rationale.
+
 ## Step 1: Parse Input
 
 From the user's prompt, determine:
