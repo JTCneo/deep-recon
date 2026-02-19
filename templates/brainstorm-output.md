@@ -64,8 +64,10 @@ source_notes:
 - [Source title](URL) — key insight
 
 > [!note]- Process Log
-> **Mode**: {{mode}}
-> **Intention**: {{intention}}
-> **Rounds**: {{round_count}}
+> **Mode**: {{mode}} · **Rounds**: {{round_count}} · **Date**: {{date}}
+> **Tokens**: {{total_tokens}} total · R1: {{r1_tokens}} · R2: {{r2_tokens}}
+> **Elapsed**: {{total_elapsed}} wall clock · R1: {{r1_elapsed}} · R2: {{r2_elapsed}}
 >
 > {{Per-round agent summaries}}
+>
+> **Agent reports**: {{agent_report_wikilinks}}

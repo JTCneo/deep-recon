@@ -38,6 +38,7 @@ Before dispatching agents, gather context:
 2. **Read** the top 3-5 most relevant notes found
 3. Compile a **context brief**: key concepts, existing positions, related notes with paths
 4. **Identify primary source URLs.** Scan the source material and context brief for URLs, website references, and project names that have web presences. Pass these to the Explorer in R1 with explicit instruction: "Fetch and read these primary sources directly. Do not rely on secondary coverage."
+5. **Record the session start time.** Note the current time — you'll need it for elapsed-time metrics in the Process Log.
 
 This context brief is shared with all subagents in round 1.
 
@@ -77,6 +78,39 @@ After collecting all agent outputs:
 - Push distinct framings further apart — develop what makes each one different
 - Identify clashes between framings; these tensions need deepening in the next round
 
+### Metrics Persistence
+
+After collecting each round's agent results and BEFORE any further processing, write (or update) `_metrics.md` in the recon/ output directory with:
+
+- Per-agent token counts and elapsed times (from Task result metadata)
+- Round wall-clock time (time from dispatching agents to last agent returning)
+- Cumulative totals across all rounds so far
+
+**This file survives context compaction.** If earlier context is compressed, read `_metrics.md` to recover the numbers. Do not rely on in-context memory for metrics — compaction will erase them.
+
+Create `_metrics.md` after Round 1 completes. Update it after each subsequent round. Format:
+
+```
+# Metrics
+
+Session start: YYYY-MM-DD HH:MM
+
+## Round 1
+- Explorer: ~XXXk tokens, X.Xm
+- Associator: ~XXXk tokens, X.Xm
+- Critic: ~XXXk tokens, X.Xm
+- Synthesizer: ~XXXk tokens, X.Xm
+- Round wall clock: X.Xm
+- Round total tokens: ~XXXk
+
+## Round 2
+...
+
+## Cumulative
+- Total tokens: ~XXXk
+- Total wall clock: XXm
+```
+
 ### Cross-Pollination
 
 When dispatching round 2+ agents, include in each prompt:
@@ -113,7 +147,8 @@ The orchestrator does NOT write the recon document's substance. The final-round 
 
 1. Dispatches the final Synthesizer with ALL agent reports from all rounds, plus the template, plus the instruction to draft the complete document
 2. Takes the Synthesizer's draft and adds: YAML frontmatter, corrected `[[wikilinks]]`, proper Obsidian formatting (callouts, footnotes)
-3. Saves the document and individual agent reports
+3. Reads `_metrics.md` from the recon/ directory and adds final metrics to the Process Log (total tokens, total elapsed time, per-round breakdown)
+4. Saves the document and individual agent reports
 
 The orchestrator may correct factual errors or fix broken references, but should NOT rewrite arguments, reframe findings, or impose a different structure. The Synthesizer's voice is the document's voice.
 
