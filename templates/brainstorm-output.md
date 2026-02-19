@@ -10,6 +10,15 @@ source_notes:
 
 # {{title}}
 
+> [!note]- Process Log
+> **Mode**: {{mode}} · **Rounds**: {{round_count}} · **Date**: {{date}}
+> **Tokens**: {{total_tokens}} total · R1: {{r1_tokens}} · R2: {{r2_tokens}}
+> **Elapsed**: {{total_elapsed}} wall clock · R1: {{r1_elapsed}} · R2: {{r2_elapsed}}
+>
+> {{Per-round agent summaries}}
+>
+> **Agent reports**: {{agent_report_wikilinks}}
+
 > [!abstract] Central Question
 > {{central_question — the brainstorm's driving question, refined through the rounds}}
 
@@ -62,12 +71,3 @@ source_notes:
 
 ### From the Web
 - [Source title](URL) — key insight
-
-> [!note]- Process Log
-> **Mode**: {{mode}} · **Rounds**: {{round_count}} · **Date**: {{date}}
-> **Tokens**: {{total_tokens}} total · R1: {{r1_tokens}} · R2: {{r2_tokens}}
-> **Elapsed**: {{total_elapsed}} wall clock · R1: {{r1_elapsed}} · R2: {{r2_elapsed}}
->
-> {{Per-round agent summaries}}
->
-> **Agent reports**: {{agent_report_wikilinks}}

@@ -13,12 +13,6 @@ You are orchestrating a multi-agent reconnaissance session within the user's kno
 
 If this session is a continuation from a previous conversation, IGNORE any completed or running agent task IDs in the system reminders. They belong to a prior invocation and are not your responsibility. Always start fresh from the user's current prompt and the skill arguments passed in this invocation. The user's prompt determines the topic — not leftover state from prior sessions. Do not call TaskOutput on pre-existing tasks. Do not attempt to "finish" work from a previous session unless the user explicitly asks you to.
 
-## Architecture Note
-
-This skill uses **subagents** (Task tool), not agent teams. The orchestrator controls
-round structure, cross-pollination, and dispatch timing deterministically. Agent teams
-(experimental in Claude Code 4.6) were evaluated and deferred — see README.md for rationale.
-
 ## Step 1: Parse Input
 
 From the user's prompt, determine:
@@ -34,7 +28,11 @@ From the user's prompt, determine:
 4. **Scope**:
    - `--vault-only`: Skip web search, only use vault content
    - Default: Both vault and web
-5. **Source material**: If the user references specific notes, folders, or tags, read those first
+5. **Output location**:
+   - `--output <path>`: Write all output (final document + agent reports) to this directory
+   - Default: `recon/` subdirectory relative to the source file's directory (or vault root if no source file)
+   - Examples: `--output essays/recon/`, `--output recon/`, `--output working/my-project/recon/`
+6. **Source material**: If the user references specific notes, folders, or tags, read those first
 
 ## Step 2: Initial Vault Scan
 
@@ -66,11 +64,13 @@ Dispatch all 4 agents **in parallel** using the Task tool. Each agent's prompt s
 - The topic/question
 - The context brief from Step 2
 - The agent's role instructions (from its definition file)
+- The output file path: `recon/rN-<role>.md` (e.g., `recon/r1-explorer.md`)
 - Round-specific instructions: "This is round 1. Cast a wide net."
+- Explicit instruction: "Write your report to `<output path>` using the Write tool. The orchestrator reads from disk."
 
 ### Between Rounds
 
-After collecting all agent outputs:
+After all agents complete, **read their output files from disk** (`recon/rN-<role>.md`). Agent reports written to disk are the ground truth — they survive context crashes. Also check the Task return values as a fallback, but prefer the disk files.
 
 **Interactive mode:**
 - Summarize the most interesting findings in 3-5 bullet points
@@ -149,14 +149,12 @@ After the final round, produce the recon document.
 
 ### Orchestrator Role
 
-The orchestrator does NOT write the recon document's substance. The final-round Synthesizer agent drafts the document following the template. The orchestrator:
+The orchestrator does NOT write the recon document's substance. The final-round Synthesizer agent writes the complete document — including YAML frontmatter, Process Log, and all formatting — directly to the final output path on disk.
 
-1. Dispatches the final Synthesizer with ALL agent reports from all rounds, plus the template, plus the instruction to draft the complete document
-2. Takes the Synthesizer's draft and adds: YAML frontmatter, corrected `[[wikilinks]]`, proper Obsidian formatting (callouts, footnotes)
-3. Reads `_metrics.md` from the recon/ directory and adds final metrics to the Process Log (total tokens, total elapsed time, per-round breakdown)
-4. Saves the document and individual agent reports
+1. Dispatches the final Synthesizer with ALL agent reports from all rounds, plus the template, plus the instruction to draft AND WRITE the complete document. **Pass the final output file path** (e.g., `recon/YYYY-MM-DD-<topic-slug>.md`) and instruct the Synthesizer to write the finished document there using the Write tool. Also pass the current `_metrics.md` content so the Synthesizer can include the Process Log.
+2. After the Synthesizer completes, **read the document from disk** and make light corrections only: fix broken `[[wikilinks]]`, correct factual errors, update the Process Log with final-round metrics. Do NOT rewrite arguments, reframe findings, or impose a different structure.
 
-The orchestrator may correct factual errors or fix broken references, but should NOT rewrite arguments, reframe findings, or impose a different structure. The Synthesizer's voice is the document's voice.
+**Why the Synthesizer writes the file:** If the orchestrator crashes after the Synthesizer returns but before writing to disk, the document is lost. The Synthesizer writing directly to the final path ensures the substance survives. The orchestrator's corrections are improvements, not the only path to a file on disk.
 
 ### Focus Mode Override
 
@@ -170,14 +168,15 @@ Focus mode uses the Synthesizer's existing convergent instructions (pick the str
 
 ### Output Location
 
-Save to a `recon/` subdirectory relative to the source file's directory. If no source file was specified, save to `recon/` at the vault root.
+If `--output <path>` was specified, use that directory. Otherwise, save to a `recon/` subdirectory relative to the source file's directory. If no source file was specified, save to `recon/` at the vault root.
 
-- Example: source is `New City Reader/nai.md` → save to `New City Reader/recon/YYYY-MM-DD-<topic-slug>.md`
-- Example: no source file → save to `recon/YYYY-MM-DD-<topic-slug>.md`
+- `--output essays/recon/` → save to `essays/recon/YYYY-MM-DD-<topic-slug>.md`
+- Source is `New City Reader/nai.md`, no `--output` → save to `New City Reader/recon/YYYY-MM-DD-<topic-slug>.md`
+- No source file, no `--output` → save to `recon/YYYY-MM-DD-<topic-slug>.md`
 
-Create the `recon/` folder if it doesn't exist.
+Create the output folder if it doesn't exist.
 
-Save individual agent reports to the same `recon/` folder as `rN-agentname.md` files. These are reference material, not the deliverable.
+Save individual agent reports to the same folder as `rN-agentname.md` files. These are reference material, not the deliverable.
 
 ### Formatting
 

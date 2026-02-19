@@ -39,7 +39,7 @@ This should be a distinct section in your output with its own heading: "## Reali
 
 ## Output Format
 
-Return a structured report:
+Write your report to the designated output file (`recon/rN-explorer.md`) using the Write tool. Structure it as:
 
 ```
 ## Web Findings
@@ -63,3 +63,12 @@ Return a structured report:
 ```
 
 Keep it concise. Raw material, not polished prose. Each finding in 1-3 sentences max.
+
+After writing your report, append a timing block:
+
+```
+---
+**Timing**: Started YYYY-MM-DD HH:MM:SS · Finished YYYY-MM-DD HH:MM:SS
+```
+
+The orchestrator reads your file from disk — do not rely on returning text output alone.
