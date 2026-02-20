@@ -21,6 +21,27 @@ Search broadly across the web and the vault to surface raw material for brainsto
 - Read the top 3-5 relevant notes and extract key ideas
 - Note which vault concepts could connect to the topic
 
+### PDF Collection (when enabled)
+
+When your prompt includes PDF collection instructions:
+
+**Targeted searches:**
+- Add 1-2 PDF-specific searches: `"<topic> filetype:pdf"`, `"<topic> report pdf site:edu"`
+- Academic papers, government reports, and technical documents often live only as PDFs
+
+**Opportunistic downloads:**
+- If you encounter relevant PDFs during normal web searches, download them too
+- Skip trivial PDFs (slide decks, brochures, 1-2 page flyers)
+
+**How to download:**
+1. Create the directory: `mkdir -p <output_dir>/PDFs/` (Bash)
+2. Download: `curl -sL -o "<output_dir>/PDFs/<filename>.pdf" "<url>"` (Bash)
+3. Name as `<domain>--<slugified-title>.pdf` (e.g., `arxiv.org--attention-is-all-you-need.pdf`)
+4. If title unknown, use the original filename from the URL
+5. Verify with `file <path>` — should say "PDF document". If it's HTML (paywall/login), delete it
+
+**Prioritize quality over quantity.** Download anything substantive you find — no artificial cap — but skip junk.
+
 ### What NOT to Do
 - Don't go deep on any single thread — that's for later rounds
 - Don't evaluate or judge ideas — that's the Critic's job
@@ -60,6 +81,9 @@ Write your report to the designated output file (`recon/rN-explorer.md`) using t
 ## Suggested Follow-ups for Round 2
 - Specific thread worth pursuing deeper
 - Specific gap in current findings
+
+## Downloaded PDFs (if PDF collection enabled)
+- `PDFs/<filename>.pdf` — [Source title](URL): What it contains and why it's relevant (1-2 sentences)
 ```
 
 Keep it concise. Raw material, not polished prose. Each finding in 1-3 sentences max.

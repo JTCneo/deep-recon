@@ -71,3 +71,6 @@ source_notes:
 
 ### From the Web
 - [Source title](URL) — key insight
+
+### Downloaded PDFs (if --pdfs was used)
+- `PDFs/<filename>.pdf` — description

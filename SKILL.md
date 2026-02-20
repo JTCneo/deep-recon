@@ -33,6 +33,9 @@ From the user's prompt, determine:
    - Default: `recon/` subdirectory relative to the source file's directory (or vault root if no source file)
    - Examples: `--output essays/recon/`, `--output recon/`, `--output working/my-project/recon/`
 6. **Source material**: If the user references specific notes, folders, or tags, read those first
+7. **PDF collection**:
+   - `--pdfs`: Explorer searches for and downloads relevant PDFs to a `PDFs/` subdirectory within the output directory
+   - Default: Off
 
 ## Step 2: Initial Vault Scan
 
@@ -67,6 +70,7 @@ Dispatch all 4 agents **in parallel** using the Task tool. Each agent's prompt s
 - The output file path: `recon/rN-<role>.md` (e.g., `recon/r1-explorer.md`)
 - Round-specific instructions: "This is round 1. Cast a wide net."
 - Explicit instruction: "Write your report to `<output path>` using the Write tool. The orchestrator reads from disk."
+- If `--pdfs` is enabled, include in the Explorer's prompt: "PDF collection is enabled. See the PDF Collection section of your instructions. Save PDFs to `<output_dir>/PDFs/`. Create the directory with `mkdir -p` via Bash before downloading."
 
 ### Between Rounds
 
@@ -129,7 +133,7 @@ When dispatching round 2+ agents, include in each prompt:
 ### Round 2: Deepening
 
 Same 4 agents, but with updated focus:
-- Explorer: Two mandates — (a) fill gaps identified by Critic and Synthesizer, (b) operational reality check: ground the abstractions in concrete cases, precedents, and constraints
+- Explorer: Two mandates — (a) fill gaps identified by Critic and Synthesizer, (b) operational reality check: ground the abstractions in concrete cases, precedents, and constraints. If `--pdfs` is enabled, include: "Check `<output_dir>/PDFs/` for already-downloaded PDFs before downloading to avoid duplicates."
 - Associator: Work connections between round 1 findings
 - Critic: Stress-test the strongest emerging ideas
 - Synthesizer: Refine themes, identify productive tensions
