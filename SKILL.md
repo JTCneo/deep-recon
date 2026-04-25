@@ -169,7 +169,7 @@ After updating `_metrics.md` and before dispatching the next round (Round 2 or R
    - **Do not dispatch the next round.**
    - Skip directly to the **Step 4 / Final Synthesizer** path.
    - Pass the Synthesizer the agent reports gathered so far AND a note: "Token budget cap reached. Produce the best final document you can from current material."
-   - Record the budget-abort in the Process Log: "Aborted at Round N due to --budget <tokens>. Final document drafted from R1..N reports."
+   - Record the budget-abort in the Process Log: "Aborted at Round N due to --budget `<tokens>`. Final document drafted from R1..N reports."
 4. If projected next-round spend would push within 10% of cap, warn but proceed; the next-round budget check will catch genuine overruns.
 
 The point is to **fail safely with a finished draft**, not to crash mid-recon.
@@ -183,7 +183,7 @@ The recon should produce something useful even when parts of the dispatch fail. 
 1. Check each agent report file on disk.
 2. Note which reports are missing or empty.
 3. Proceed to the next round (or Step 4) with the partial report set. Pass the surviving reports to subsequent agents.
-4. Record the failure in the Process Log: "Round N: <agent> failed (timeout / error / empty output). Continuing with <N-failures> reports."
+4. Record the failure in the Process Log: "Round N: `<agent>` failed (timeout / error / empty output). Continuing with `<N-failures>` reports."
 5. If the failed agent was the Synthesizer in a non-final round, the orchestrator must do its job: compile settled claims, identify framings, generate cross-pollination prompts. This is a fallback — the orchestrator's interpretive work is the Synthesizer's role in mid-rounds.
 
 **All agents fail in a round.** Abort cleanly:
@@ -197,7 +197,7 @@ The recon should produce something useful even when parts of the dispatch fail. 
 
 1. Read the Synthesizer's Task return value (it may contain the draft text even if Write failed).
 2. Try to write the file yourself (the orchestrator) using the captured text.
-3. If both retries fail, write a stub recon at the output path with: Process Log, Sources extracted from agent reports, Central Question, and a clear note: "Final synthesis failed at <timestamp>. Agent reports preserved at <output_dir>/rN-*.md — they contain the substance of this recon."
+3. If both retries fail, write a stub recon at the output path with: Process Log, Sources extracted from agent reports, Central Question, and a clear note: "Final synthesis failed at `<timestamp>`. Agent reports preserved at `<output_dir>/rN-*.md` — they contain the substance of this recon."
 
 **`_metrics.md` write fails.** Log to stderr but continue. Recon quality does not depend on metrics. The Process Log will be missing precise numbers; flag this in the log entry: "Metrics unavailable — _metrics.md write failed."
 
