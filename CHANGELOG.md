@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - `--pdfs` flag for Explorer PDF collection — Explorer downloads relevant PDFs to `<output_dir>/PDFs/` during web search.
+- `--plain` flag — Synthesizer produces CommonMark-only output (no `[[wikilinks]]`, no `> [!callouts]`) for non-Obsidian environments.
+- Per-agent model overrides: `--explorer-model`, `--associator-model`, `--critic-model`, `--synthesizer-model`. Each agent's Task dispatch now passes the resolved model parameter; defaults are tabulated in SKILL.md's "Agent Model Selection" section.
+- `--budget <tokens>` flag — hard cap on total token spend. The orchestrator reads `_metrics.md` between rounds and aborts gracefully (writing the best-available draft) before exceeding the cap.
+- `argument-hint` field in SKILL.md frontmatter — surfaces the skill's flag set at invocation time.
+- `examples/` directory with two illustrative recon outputs (Explore mode, Focus mode) plus a README explaining their illustrative status.
+- `docs/TUNING.md` — guidance for forkers on customizing the Synthesizer's voice. Documents the hardcoded `_resources/Kazys Varnelis – Personal Writing Style Guide.md` reference and three remediation paths (replace, remove, parameterize).
+- `CONTRIBUTING.md` — PR norms, prompt-edit conventions, local testing, style expectations.
+- `tests/check_recon_structure.py` and `tests/run_smoke_tests.sh` — structural validator for recon output documents (frontmatter fields, required sections, Territory cardinality, Obsidian/plain flavoring), with self-test against the example files.
+- `.github/workflows/lint.yml` — CI runs markdownlint-cli2 plus a SKILL.md frontmatter check and a "no frontmatter in agent files" check.
+- README **Troubleshooting** section covering missing-document recovery, determinism expectations, partial-round failure handling, generic-output fixes, metrics after compaction, and cost controls.
+- README **Documentation** section pointing to CHANGELOG, TUNING, and examples.
+
+### Changed
+- Orchestrator now handles partial-round failures gracefully — see the new **Failure Handling** section in SKILL.md. One agent failing no longer aborts the round; Synthesizer write failures retry once then fall back to orchestrator-written stub; `_metrics.md` failures degrade non-fatally.
+- README architecture section updated to be Claude-Code-version-agnostic (the prior "experimental in Claude Code 4.6" reference is replaced with a forward-compatible framing).
+- README modes table includes `--plain`.
 
 ## [1.0.0] — 2026-02-19
 
