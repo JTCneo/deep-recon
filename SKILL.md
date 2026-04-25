@@ -3,7 +3,7 @@ name: deep-recon
 description: Run extended multi-agent reconnaissance sessions. Use when asked to brainstorm deeply, explore ideas from multiple angles, or generate a structured recon document.
 allowed-tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch, Task, AskUserQuestion
 user-invocable: true
-argument-hint: "[--autonomous] [--focus] [--vault-only] [--pdfs] [--output <path>] <topic>"
+argument-hint: "[--autonomous] [--focus] [--vault-only] [--pdfs] [--plain] [--output <path>] <topic>"
 ---
 
 # Deep Recon
@@ -37,6 +37,9 @@ From the user's prompt, determine:
 7. **PDF collection**:
    - `--pdfs`: Explorer searches for and downloads relevant PDFs to a `PDFs/` subdirectory within the output directory
    - Default: Off
+8. **Output flavor**:
+   - `--plain`: Synthesizer produces plain markdown — no `[[wikilinks]]`, no `> [!callout]` blocks. Use this for forks where Obsidian is not the target environment (Logseq, Foam, plain GitHub markdown, etc.)
+   - Default: Obsidian-flavored output (wikilinks, callouts, frontmatter)
 
 ## Step 2: Initial Vault Scan
 
@@ -185,10 +188,20 @@ Save individual agent reports to the same folder as `rN-agentname.md` files. The
 
 ### Formatting
 
+Default (Obsidian flavor):
+
 - Use Obsidian `[[wikilinks]]` for vault references
 - Use standard Markdown footnotes for web sources
-- Use callout blocks (`> [!info]`) for the process log
+- Use callout blocks (`> [!info]`, `> [!note]-`, `> [!abstract]`) for the Process Log and Central Question
 - Keep the main body in flowing prose, not bullet-point dumps
+
+When `--plain` is set:
+
+- Replace `[[wikilinks]]` with standard `[link text](relative/path.md)` links — or, for vault notes that don't have a known web target, plain prose mentions
+- Replace `> [!note]- Process Log` with `## Process Log` (an ordinary section)
+- Replace `> [!abstract] Central Question` with `## Central Question` (an ordinary section)
+- Footnotes (`[^1]`) and YAML frontmatter remain unchanged (both are CommonMark-compatible and used by many systems)
+- Pass the `--plain` flag through to the Synthesizer in its prompt — it must know to apply these substitutions while drafting
 
 ## Agent Model Selection
 

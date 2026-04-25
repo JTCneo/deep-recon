@@ -62,6 +62,7 @@ Claude Code's agent-definition spec, which has been moving fast.
 | `--focus` | Focus | Convergent — narrows to one argument, ends with action plan |
 | `--vault-only` | Vault-only | Skips web search, uses only vault content |
 | `--pdfs` | PDF collection | Explorer downloads relevant PDFs to `<output_dir>/PDFs/` |
+| `--plain` | Plain markdown | Output is CommonMark-only — no `[[wikilinks]]`, no `> [!callouts]`. Use for non-Obsidian environments. |
 
 ## Installation
 
