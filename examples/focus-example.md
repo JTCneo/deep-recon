@@ -42,7 +42,7 @@ The strongest civic infrastructure aesthetics in 2026 are the ones that acknowle
 - **Aesthetics as climate-resilience signaling.** Some recent commentary frames expressive infrastructure as a hedge against climate fatalism — building things that imply they should still exist in 2080. Strong but partially redundant with the civic-optimism thesis.
 - **Aesthetics as gentrification machinery.** A skeptical reading: expressive infrastructure pre-prices neighborhoods. Real, but a different argument about a different question — kept aside for a separate recon.
 
-## Tensions Worth Preserving
+## Tensions
 
 ### Civic optimism vs. democratic deference
 
