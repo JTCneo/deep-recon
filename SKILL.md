@@ -40,6 +40,11 @@ From the user's prompt, determine:
 8. **Output flavor**:
    - `--plain`: Synthesizer produces plain markdown — no `[[wikilinks]]`, no `> [!callout]` blocks. Use this for forks where Obsidian is not the target environment (Logseq, Foam, plain GitHub markdown, etc.)
    - Default: Obsidian-flavored output (wikilinks, callouts, frontmatter)
+9. **Per-agent model overrides** (optional, advanced):
+   - `--explorer-model <id>` / `--associator-model <id>` / `--critic-model <id>` / `--synthesizer-model <id>`
+   - `<id>` is a Claude model identifier (e.g. `opus`, `sonnet`, `haiku`, or a fully-qualified ID)
+   - Default assignments are in the **Agent Model Selection** section below
+   - Most users should leave these alone. Override is for cost optimization (e.g., `--explorer-model haiku` for cheap web triage) or quality experiments (e.g., `--critic-model opus` for harder pressure-testing)
 
 ## Step 2: Initial Vault Scan
 
@@ -205,9 +210,33 @@ When `--plain` is set:
 
 ## Agent Model Selection
 
-- Default: Use `sonnet` for Explorer, Associator, Critic
-- Use `opus` for Synthesizer (it does the hardest integrative thinking)
-- If the user requests maximum quality, use `opus` for all agents
+When dispatching each agent via the Task tool, pass the resolved model as the `model` parameter on the call. The defaults:
+
+| Agent | Default model | Rationale |
+|---|---|---|
+| Explorer | `sonnet` | Breadth of search rewards speed and decent quality; Haiku is viable here for cost-sensitive runs (use `--explorer-model haiku`) |
+| Associator | `sonnet` | Lateral connection-finding benefits from Sonnet's reasoning over Haiku |
+| Critic | `sonnet` | Stress-testing needs reasoning depth; consider `--critic-model opus` for the highest-stakes recons |
+| Synthesizer | `opus` | The integrative thinking is the bottleneck; this is where capability matters most |
+
+**Resolution order** (highest precedence first):
+1. Per-agent override flag (`--explorer-model`, `--associator-model`, `--critic-model`, `--synthesizer-model`)
+2. Repo-level config (a forker may edit this section to change defaults)
+3. The defaults in the table above
+
+**Maximum-quality mode:** If the user says "use the best model for everything" (or similar), set all four to `opus`. Token cost roughly 4–5× the default Sonnet/Sonnet/Sonnet/Opus mix.
+
+**Cost-conscious mode:** `--explorer-model haiku` is the safest single substitution. The Synthesizer should remain on Opus — Haiku-on-Synthesizer significantly degrades final-document quality.
+
+When dispatching, your Task call should look like:
+
+```
+Task(
+  subagent_type: "general-purpose",
+  model: <resolved model for this agent>,
+  prompt: <agent role prompt + context brief + round-specific instructions>
+)
+```
 
 ## Important
 
