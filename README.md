@@ -145,10 +145,17 @@ This is by design. Web search results vary day-to-day, vault state evolves, and 
 
 ### "An agent timed out, or one round is missing a report"
 
-The orchestrator does not currently handle partial-round failures gracefully — if one agent times out, the round may proceed with N–1 reports or stall. To recover:
+The orchestrator handles partial-round failures gracefully — see the **Failure Handling** section in `SKILL.md`. The summary:
 
-- Inspect the recon directory for partial agent reports.
-- Re-run the skill with the same topic; the orchestrator will overwrite per-round files.
+- **One agent fails:** the round proceeds with N–1 reports. The Process Log notes the failure.
+- **All agents fail in a round:** the orchestrator skips to the final Synthesizer with whatever earlier rounds produced.
+- **Synthesizer's final write fails:** the orchestrator retries, and on a second failure writes a stub document pointing the user at the per-agent reports on disk.
+
+Practical recovery as a user:
+
+- Inspect the recon directory for whatever reports landed.
+- Read the Process Log in the final document — it tells you which rounds and agents failed.
+- Re-run the skill with the same topic if you want a fresh attempt; the orchestrator overwrites per-round files.
 - If web search is the consistent failure, add `--vault-only`.
 
 ### "The output sounds generic, not like my voice"
@@ -164,7 +171,12 @@ The Process Log reads from `_metrics.md`, which is updated after every round exp
 
 ### "How much does a typical run cost?"
 
-Token spend depends on vault size, web search depth, and whether you run 2 or 3 rounds. Per-round cost data is recorded in `_metrics.md` — review it after a few runs to calibrate. The Synthesizer (Opus) is the highest single-agent contributor in most runs. There is no built-in budget cap; if cost matters, watch `_metrics.md` between rounds and abort manually if needed.
+Token spend depends on vault size, web search depth, and whether you run 2 or 3 rounds. Per-round cost data is recorded in `_metrics.md` — review it after a few runs to calibrate. The Synthesizer (Opus) is the highest single-agent contributor in most runs.
+
+If cost matters, you have two levers:
+
+- **Hard cap:** `--budget <tokens>` — the orchestrator aborts gracefully (writing the best-available draft) before exceeding the cap. See SKILL.md's "Budget Check" section.
+- **Cheaper Explorer:** `--explorer-model haiku` is the safest single substitution for cost-sensitive runs. The Synthesizer should remain on Opus — Haiku-on-Synthesizer significantly degrades final-document quality. See SKILL.md's "Agent Model Selection" section for full guidance.
 
 ## Documentation
 

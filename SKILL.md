@@ -174,6 +174,43 @@ After updating `_metrics.md` and before dispatching the next round (Round 2 or R
 
 The point is to **fail safely with a finished draft**, not to crash mid-recon.
 
+### Failure Handling
+
+The recon should produce something useful even when parts of the dispatch fail. The orchestrator's job is to degrade gracefully, never to crash mid-recon and lose all collected work.
+
+**One agent fails or times out within a round.** Do NOT abort the round. After all parallel Tasks return:
+
+1. Check each agent report file on disk.
+2. Note which reports are missing or empty.
+3. Proceed to the next round (or Step 4) with the partial report set. Pass the surviving reports to subsequent agents.
+4. Record the failure in the Process Log: "Round N: <agent> failed (timeout / error / empty output). Continuing with <N-failures> reports."
+5. If the failed agent was the Synthesizer in a non-final round, the orchestrator must do its job: compile settled claims, identify framings, generate cross-pollination prompts. This is a fallback — the orchestrator's interpretive work is the Synthesizer's role in mid-rounds.
+
+**All agents fail in a round.** Abort cleanly:
+
+1. Read whatever partial reports exist on disk.
+2. Dispatch the final Synthesizer with all available material from prior rounds.
+3. Pass the Synthesizer a note: "Round N agents all failed. Produce the best document possible from R1..N-1 reports." If this happens in Round 1, write a stub recon explaining the failure and exit.
+4. Record clearly in the Process Log.
+
+**Synthesizer's final-document write fails.** Retry once with the same input. If the retry fails:
+
+1. Read the Synthesizer's Task return value (it may contain the draft text even if Write failed).
+2. Try to write the file yourself (the orchestrator) using the captured text.
+3. If both retries fail, write a stub recon at the output path with: Process Log, Sources extracted from agent reports, Central Question, and a clear note: "Final synthesis failed at <timestamp>. Agent reports preserved at <output_dir>/rN-*.md — they contain the substance of this recon."
+
+**`_metrics.md` write fails.** Log to stderr but continue. Recon quality does not depend on metrics. The Process Log will be missing precise numbers; flag this in the log entry: "Metrics unavailable — _metrics.md write failed."
+
+**Web search returns empty or errors (`--vault-only` is not set).** The Explorer agent is responsible for handling this in its own prompt — see `agents/explorer.md`. The orchestrator does NOT auto-fallback to `--vault-only`. If the Explorer reports zero web findings, dispatch the next round with that fact in the cross-pollination context: "Web search yielded nothing in Round N — Round N+1 should rely on vault and Associator findings."
+
+**PDF download fails (`--pdfs` is set).** Explorer skips and continues — see `agents/explorer.md`. No orchestrator action.
+
+**The user kills the orchestrator mid-round.** All Task subagents will continue running until they complete or the session ends. Their reports may or may not land on disk depending on timing. On next invocation:
+- If a previous session's recon directory exists with partial reports, do not auto-resume. Start fresh from the user's current prompt.
+- The user can manually inspect the partial reports and re-invoke with `--resume` if they want to continue (resume is not currently implemented but is reserved for future versions).
+
+The principle is **substance survives**. Agent reports on disk are the ground truth. The final document is built from them. Anything else — the orchestrator's in-context state, the metrics, the cross-pollination prose — is auxiliary and recoverable.
+
 ## Step 4: Produce Output
 
 After the final round, produce the recon document.
