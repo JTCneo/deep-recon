@@ -23,9 +23,15 @@ check() {
 check "examples/explore-example.md" --mode explore
 check "examples/focus-example.md" --mode focus
 
+# Validator contract tests — assert the validator catches malformed inputs,
+# not just that the example files happen to pass.
+if ! python3 tests/test_validator_contract.py; then
+    failed=1
+fi
+
 if [[ $failed -eq 1 ]]; then
     echo
-    echo "Smoke tests failed. The example files no longer match the structural contract."
+    echo "Smoke tests failed. Either the example files no longer match the structural contract, or the validator's contract has regressed."
     exit 1
 fi
 

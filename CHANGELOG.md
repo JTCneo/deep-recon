@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `docs/TUNING.md` — guidance for forkers on customizing the Synthesizer's voice. Documents the hardcoded `_resources/Kazys Varnelis – Personal Writing Style Guide.md` reference and three remediation paths (replace, remove, parameterize).
 - `CONTRIBUTING.md` — PR norms, prompt-edit conventions, local testing, style expectations.
 - `tests/check_recon_structure.py` and `tests/run_smoke_tests.sh` — structural validator for recon output documents (frontmatter fields, required sections, Territory cardinality, Obsidian/plain flavoring), with self-test against the example files.
+- `tests/test_validator_contract.py` — negative tests for the validator itself: feeds it 7 malformed stubs (missing section, framings under/over cardinality, missing frontmatter field, plain-mode wikilinks, plain-mode callouts, Obsidian mode with no wikilinks) and asserts the expected errors fire. Catches regressions that would silently weaken the validator. Wired into `run_smoke_tests.sh`.
 - `.github/workflows/lint.yml` — CI runs markdownlint-cli2 plus a SKILL.md frontmatter check and a "no frontmatter in agent files" check.
 - README **Troubleshooting** section covering missing-document recovery, determinism expectations, partial-round failure handling, generic-output fixes, metrics after compaction, and cost controls.
 - README **Documentation** section pointing to CHANGELOG, TUNING, and examples.

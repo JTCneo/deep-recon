@@ -5,7 +5,8 @@ Structural validation for `deep-recon` output documents. Catches prompt-regressi
 ## Files
 
 - `check_recon_structure.py` — the validator. Asserts the structural contract.
-- `run_smoke_tests.sh` — runs the validator against `examples/explore-example.md` and `examples/focus-example.md`. Use this as a self-test of the validator itself.
+- `test_validator_contract.py` — negative tests for the validator. Feeds it intentionally-malformed stubs (missing sections, wrong cardinality, plain-mode violations, etc.) and asserts the right errors are raised. Without this, a regression that loosens the validator could land silently.
+- `run_smoke_tests.sh` — runs the validator against `examples/explore-example.md` and `examples/focus-example.md`, then runs the validator-contract tests. Use this as a self-test of the validator itself.
 - `golden/` — reserved for full golden-master files captured from real recon runs (see "Adding goldens" below).
 
 ## What the validator checks
