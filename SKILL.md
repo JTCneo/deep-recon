@@ -45,6 +45,9 @@ From the user's prompt, determine:
    - `<id>` is a Claude model identifier (e.g. `opus`, `sonnet`, `haiku`, or a fully-qualified ID)
    - Default assignments are in the **Agent Model Selection** section below
    - Most users should leave these alone. Override is for cost optimization (e.g., `--explorer-model haiku` for cheap web triage) or quality experiments (e.g., `--critic-model opus` for harder pressure-testing)
+10. **Token budget cap** (optional):
+    - `--budget <tokens>`: hard cap on total token spend across the recon. Numbers like `200000`, `500000`, `1m` accepted. The orchestrator reads `_metrics.md` between rounds and aborts gracefully (writing the best-available draft) before exceeding the cap.
+    - Default: no cap. Spend is recorded in `_metrics.md` but not gated.
 
 ## Step 2: Initial Vault Scan
 
@@ -155,6 +158,21 @@ Run only if:
 - There are tensions that need more development or framings that are still underdeveloped
 
 Focus agents on developing the tensions and filling out underdeveloped framings. Round 3 should find NEW complications, not resolve existing ones.
+
+### Budget Check (between rounds, when `--budget` is set)
+
+After updating `_metrics.md` and before dispatching the next round (Round 2 or Round 3), check:
+
+1. Read `_metrics.md` to get cumulative token spend so far.
+2. Estimate the next round's spend using the previous round as a baseline (parallel agents, similar prompt sizes — use the previous round's per-agent token average × 4 + a small Synthesizer multiplier for cross-pollination).
+3. If `cumulative + estimated_next > budget`:
+   - **Do not dispatch the next round.**
+   - Skip directly to the **Step 4 / Final Synthesizer** path.
+   - Pass the Synthesizer the agent reports gathered so far AND a note: "Token budget cap reached. Produce the best final document you can from current material."
+   - Record the budget-abort in the Process Log: "Aborted at Round N due to --budget <tokens>. Final document drafted from R1..N reports."
+4. If projected next-round spend would push within 10% of cap, warn but proceed; the next-round budget check will catch genuine overruns.
+
+The point is to **fail safely with a finished draft**, not to crash mid-recon.
 
 ## Step 4: Produce Output
 
